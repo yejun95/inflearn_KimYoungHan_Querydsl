@@ -14,6 +14,7 @@ import study.querydsl.entity.QMember;
 import study.querydsl.entity.Team;
 
 import static org.assertj.core.api.Assertions.*;
+import static study.querydsl.entity.QMember.*;
 
 @SpringBootTest
 @Transactional
@@ -56,12 +57,10 @@ public class QueryDslBasicTest {
     //querydsl 이용해 member1을 찾기
     @Test
     public void startQuerydsl() {
-        QMember m = new QMember("m");
-
         Member findMember = queryFactory
-                .select(m)
-                .from(m)
-                .where(m.username.eq("member1")) //자동으로 파라미터 바인딩이 된다.
+                .select(member) // QMember.member로 사용하는 것을 static import를 통해 코드를 줄인다.
+                .from(member)
+                .where(member.username.eq("member1")) //자동으로 파라미터 바인딩이 된다.
                 .fetchOne();
 
         assertThat(findMember.getUsername()).isEqualTo("member1");

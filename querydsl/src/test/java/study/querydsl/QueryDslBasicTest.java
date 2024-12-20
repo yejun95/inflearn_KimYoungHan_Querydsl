@@ -1,5 +1,6 @@
 package study.querydsl;
 
+import com.querydsl.core.QueryResults;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import jakarta.persistence.EntityManager;
 import org.assertj.core.api.Assertions;
@@ -12,6 +13,8 @@ import org.springframework.transaction.annotation.Transactional;
 import study.querydsl.entity.Member;
 import study.querydsl.entity.QMember;
 import study.querydsl.entity.Team;
+
+import java.util.List;
 
 import static org.assertj.core.api.Assertions.*;
 import static study.querydsl.entity.QMember.*;
@@ -89,5 +92,39 @@ public class QueryDslBasicTest {
                 .fetchOne();
 
         assertThat(findMember.getUsername()).isEqualTo("member1");
+    }
+
+    //결과 조회
+    @Test
+    public void resultFetch() {
+        // 리스트 조회 : fetch()
+        List<Member> fetch = queryFactory
+                .selectFrom(member)
+                .fetch();
+
+        // 단건 조회 : fetchOne()
+        // 결과가 없으면 null, 결과가 둘 이상이면 NonUniqueResultException 반환
+        Member member = queryFactory
+                .selectFrom(QMember.member)
+                .fetchOne();
+
+        // 처음 1건만 조회 : fetchFirst() > limit(1).fetchOne()을 실행하는 것과 같음
+        Member member1 = queryFactory
+                .selectFrom(QMember.member)
+                .fetchFirst();
+
+        // 페이징에서 사용
+        QueryResults<Member> results = queryFactory
+                .selectFrom(QMember.member)
+                .fetchResults();
+
+        results.getTotal();
+        results.getLimit();
+        results.getOffset();
+
+        // 카운트 쿼리
+        long total = queryFactory
+                .selectFrom(QMember.member)
+                .fetchCount();
     }
 }

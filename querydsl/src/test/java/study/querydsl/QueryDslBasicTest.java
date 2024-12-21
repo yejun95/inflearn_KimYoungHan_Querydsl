@@ -714,4 +714,49 @@ public class QueryDslBasicTest {
         return usernameEq(usernameCond).and(ageEq(ageCond));
     }
 
+    /**
+     * 수정, 삭제 배치 쿼리
+     */
+
+    @Test
+    public void bulkUpdate() {
+        //member1 = 10 -> DB member1
+        //member2 = 20 -> DB member2
+        //member3 = 30 -> DB member3
+        //member4 = 40 -> DB member4
+
+        // 수정, 삭제는 DB에 바로 쏘기 때문에 영속성 컨텍스트와 데이터가 상이해짐 -> Repeatable read
+        long count = queryFactory
+                .update(member)
+                .set(member.username, "비회원")
+                .where(member.age.lt(28))
+                .execute();
+
+        // 팬텀 리드가 발생하지 않도록 영속성 컨텍스트 초기화 진행
+        em.flush();
+        em.clear();
+
+        //member1 = 10 -> DB 비회원
+        //member2 = 20 -> DB 비회원
+        //member3 = 30 -> DB member3
+        //member4 = 40 -> DB member4
+    }
+
+    // 더하기
+    @Test
+    public void bulkAdd() {
+        queryFactory
+                .update(member)
+                .set(member.age, member.age.add(1)) //곱하기는 multiply
+                .execute();
+    }
+
+    // 삭제
+    @Test
+    public void bulkDelete() {
+        queryFactory
+                .delete(member)
+                .where(member.age.gt(18))
+                .execute();
+    }
 }

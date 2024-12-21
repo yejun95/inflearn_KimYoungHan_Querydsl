@@ -3,7 +3,6 @@ package study.querydsl;
 import com.querydsl.core.BooleanBuilder;
 import com.querydsl.core.QueryResults;
 import com.querydsl.core.Tuple;
-import com.querydsl.core.types.Expression;
 import com.querydsl.core.types.Predicate;
 import com.querydsl.core.types.Projections;
 import com.querydsl.core.types.dsl.BooleanExpression;
@@ -30,6 +29,7 @@ import study.querydsl.entity.dto.MemberDto;
 import study.querydsl.entity.dto.QMemberDto;
 import study.querydsl.entity.dto.UserDto;
 
+import java.beans.Expression;
 import java.util.List;
 
 import static org.assertj.core.api.Assertions.*;
@@ -758,5 +758,41 @@ public class QueryDslBasicTest {
                 .delete(member)
                 .where(member.age.gt(18))
                 .execute();
+    }
+
+    /**
+     * SQL Function 호출하기
+     */
+
+    // replace
+    @Test
+    public void sqlFunction() {
+        List<String> result = queryFactory
+                .select(Expressions.stringTemplate(
+                        "function('replace', {0}, {1}, {2})",
+                        member.username, "member", "M"))
+                .from(member)
+                .fetch();
+
+        for (String s : result) {
+            System.out.println("s = " + s);
+        }
+    }
+
+    // 소문자 변경
+    @Test
+    public void sqlFunction2() {
+        List<String> result = queryFactory
+                .select(member.username)
+                .from(member)
+//                .where(member.username.eq(Expressions.stringTemplate(
+//                        "function('lower', {0})",
+//                        member.username)))
+                .where(member.username.eq(member.username.lower())) // 기본 함수 같은거는 querydsl에서도 대부분 제공한다.
+                .fetch();
+
+        for (String s : result) {
+            System.out.println("s = " + s);
+        }
     }
 }

@@ -25,7 +25,6 @@ import static study.querydsl.entity.QTeam.*;
 
 @SpringBootTest
 @Transactional
-@Commit
 public class QueryDslBasicTest {
 
     @Autowired
@@ -243,10 +242,10 @@ public class QueryDslBasicTest {
         assertThat(teamB.get(member.age.avg())).isEqualTo(35);
     }
 
+
     /**
      * 조인
      */
-
     // 팀 A에 소속된 모든 회원
     @Test
     public void join() {
@@ -277,5 +276,41 @@ public class QueryDslBasicTest {
         assertThat(result)
                 .extracting("username")
                 .containsExactly("teamA", "teamB");
+    }
+
+    // 예) 회원과 팀을 조인하면서, 팀 이름이 teamA인 팀만 조인, 회원은 모두 조회
+    // JPQL : select m, t from Member m left join m.team t on t.name = 'teamA'
+    @Test
+    public void join_on_filtering() {
+        List<Tuple> result = queryFactory
+                .select(member, team)
+                .from(member)
+                .leftJoin(member.team, team).on(team.name.eq("teamA")) // outer join 시에는 null 값이 살아 있을 수 있기 때문에 on을 사용한다.
+                .fetch();
+
+        for (Tuple tuple : result) {
+            System.out.println("tuple = " + tuple);
+        }
+    }
+
+    // 예) 연관관계 없는 엔티티 외부 조인
+    // 회원의 이름이 팀 이름과 같은 대상 외부 조인
+    // JPQL :
+    @Test
+    public void join_on_no_relation() {
+        em.persist(new Member("teamA"));
+        em.persist(new Member("teamB"));
+        em.persist(new Member("teamC"));
+
+        List<Tuple> result = queryFactory
+                .select(member, team)
+                .from(member)
+                .leftJoin(team).on(member.username.eq(team.name)) //막조인
+                .fetch();
+
+        for (Tuple tuple : result) {
+            System.out.println("tuple = " + tuple);
+        }
+
     }
 }

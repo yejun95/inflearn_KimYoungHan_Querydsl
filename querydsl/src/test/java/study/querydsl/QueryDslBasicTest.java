@@ -3,6 +3,7 @@ package study.querydsl;
 import com.querydsl.core.QueryResults;
 import com.querydsl.core.Tuple;
 import com.querydsl.core.types.Expression;
+import com.querydsl.core.types.Projections;
 import com.querydsl.core.types.dsl.CaseBuilder;
 import com.querydsl.core.types.dsl.Expressions;
 import com.querydsl.jpa.JPAExpressions;
@@ -22,6 +23,9 @@ import study.querydsl.entity.Member;
 import study.querydsl.entity.QMember;
 import study.querydsl.entity.QTeam;
 import study.querydsl.entity.Team;
+import study.querydsl.entity.dto.MemberDto;
+import study.querydsl.entity.dto.QMemberDto;
+import study.querydsl.entity.dto.UserDto;
 
 import java.util.List;
 
@@ -541,6 +545,105 @@ public class QueryDslBasicTest {
             Integer age = tuple.get(member.age);
             System.out.println("string = " + string);
             System.out.println("age = " + age);
+        }
+    }
+
+    /**
+     * dto로 변환
+     */
+
+    // JPQL
+    @Test
+    public void findDtoByJPQL() {
+        // 생성자 방식만 지원하기 때문에 dto에 생성자가 있어야 한다.
+        List<MemberDto> result = em.createQuery("select new study.querydsl.entity.dto.MemberDto(m.username, m.age) from Member m", MemberDto.class)
+                .getResultList();
+
+        for (MemberDto memberDto : result) {
+            System.out.println("memberDto = " + memberDto);
+        }
+    }
+
+    // querydsl - Projections.bean : setter 접근법
+    @Test
+    public void findDtoBySetter() {
+        List<MemberDto> result = queryFactory
+                .select(Projections.bean(MemberDto.class,
+                        member.username,
+                        member.age))
+                .from(member)
+                .fetch();
+
+        for (MemberDto memberDto : result) {
+            System.out.println("memberDto = " + memberDto);
+        }
+    }
+
+    // querydsl - Projections.field : setter를 사용하지 않고 field에 바로 값을 꽂음
+    @Test
+    public void findDtoByField() {
+        List<MemberDto> result = queryFactory
+                .select(Projections.fields(MemberDto.class,
+                        member.username,
+                        member.age))
+                .from(member)
+                .fetch();
+
+        for (MemberDto memberDto : result) {
+            System.out.println("memberDto = " + memberDto);
+        }
+    }
+
+    // querydsl - Projections.field : 타입이 일치하지 않은 field 예제
+    @Test
+    public void findDtoUserField() {
+        List<UserDto> result = queryFactory
+                .select(Projections.fields(UserDto.class,
+                        member.username.as("name"), // 타입이 일치하지 않으면 as 문법으로 변경 가능
+                        member.age))
+                .from(member)
+                .fetch();
+
+        for (UserDto userDto : result) {
+            System.out.println("userDto = " + userDto);
+
+            // 만약 field에 바로 사용 시 타입이 일치하지 않은 곳은 null로 반환이 된다.
+            /*
+            userDto = UserDto(name=null, age=10)
+            userDto = UserDto(name=null, age=20)
+            userDto = UserDto(name=null, age=30)
+            userDto = UserDto(name=null, age=40)
+             */
+        }
+    }
+
+    // querydsl - Projections.constructor : MemberDto의 생성자와 타입이 정확하게 일치해야 한다.
+    @Test
+    public void findDtoByConstructor() {
+        List<MemberDto> result = queryFactory
+                .select(Projections.constructor(MemberDto.class,
+                        member.username,
+                        member.age)) // 만약 생성자에 어긋난 데이터를 조회해도 컴파일 시점에 에러를 잡을 수 없음 -> 런타임 시점에 확인 가능 -> @QueryProjection은 컴파일에 잡음
+                .from(member)
+                .fetch();
+
+        for (MemberDto memberDto : result) {
+            System.out.println("memberDto = " + memberDto);
+        }
+    }
+
+    // @QueryProjection
+    @Test
+    public void findDtoByQueryProjection() {
+        // MemberDto 생성자에 @QueryProjection를 선언했기 때문에 자동으로 dto를 맵핑해줌
+        // Dto가 querydsl의 @QueryProjection에 의존하게 되는 단점 발생
+        List<MemberDto> result = queryFactory
+                .select(new QMemberDto(member.username, member.age))
+                .from(member)
+                .fetch();
+
+        for (MemberDto memberDto : result) {
+            System.out.println("memberDto = " + memberDto);
         }
     }
 }

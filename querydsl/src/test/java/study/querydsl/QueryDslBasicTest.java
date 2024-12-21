@@ -508,4 +508,39 @@ public class QueryDslBasicTest {
             System.out.println("s = " + s);
         }
     }
+
+    /**
+     * 프로젝션
+     */
+
+    // 대상이 하나
+    @Test
+    public void simpleProjection() {
+        List<String> result = queryFactory
+                .select(member.username)
+                .from(member)
+                .fetch();
+
+        for (String s : result) {
+            System.out.println("s = " + s);
+        }
+    }
+
+    // 대상이 둘 이상
+    @Test
+    public void tupleProjection() {
+        // Tuple은 querydsl에 종속적인 기술 -> 하부 기술이기 때문에 상위 비즈니스 로직에서까지 쓰는것은 좋지 않다.
+        // 때문에 dto로 변환하여 작업하는 방법으로 진행해야함
+        List<Tuple> result = queryFactory
+                .select(member.username, member.age)
+                .from(member)
+                .fetch();
+
+        for (Tuple tuple : result) {
+            String string = tuple.get(member.username);
+            Integer age = tuple.get(member.age);
+            System.out.println("string = " + string);
+            System.out.println("age = " + age);
+        }
+    }
 }

@@ -253,3 +253,20 @@ queryFactory
 - sql 내장 함수 필요 시 querydsl에 있는지 확인하고 없다면은 template을 사용한다.
 
 - yml 설정을 통해 DB 자체를 상속받아 직접 정의하는 방법도 존재한다.
+<br>
+<br>
+
+### 학습 범위 : 5-5-1 - 5-5-4
+**➡️ 순수 JPA와 querydsl의 점진적 비교 및 테스트**
+- 실제 repository에서 querydsl을 작성
+
+- repository -> BooleanBuilder를 사용한 동적쿼리 작성
+
+- repository -> where에 메서드를 사용한 동적쿼리 작성
+
+- controller -> querydsl 로직 실행
+<br>
+<br>
+
+### 학습 범위 : 5-6-1- - 5-6-5
+**➡️ Jparepository > SpringDataJpaRepository로 변경**

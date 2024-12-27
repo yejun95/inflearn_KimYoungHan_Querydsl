@@ -1,17 +1,11 @@
 package study.querydsl.repository;
 
-import ch.qos.logback.core.util.StringUtil;
 import com.querydsl.core.BooleanBuilder;
-import com.querydsl.core.types.Predicate;
 import com.querydsl.core.types.dsl.BooleanExpression;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import jakarta.persistence.EntityManager;
-import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Repository;
-import org.springframework.util.StringUtils;
 import study.querydsl.entity.Member;
-import study.querydsl.entity.QMember;
-import study.querydsl.entity.QTeam;
 import study.querydsl.entity.dto.MemberSearchCondition;
 import study.querydsl.entity.dto.MemberTeamDto;
 import study.querydsl.entity.dto.QMemberTeamDto;
@@ -19,9 +13,9 @@ import study.querydsl.entity.dto.QMemberTeamDto;
 import java.util.List;
 import java.util.Optional;
 
-import static org.springframework.util.StringUtils.*;
-import static study.querydsl.entity.QMember.*;
-import static study.querydsl.entity.QTeam.*;
+import static org.springframework.util.StringUtils.hasText;
+import static study.querydsl.entity.QMember.member;
+import static study.querydsl.entity.QTeam.team;
 
 @Repository
 public class MemberJpaRepository {

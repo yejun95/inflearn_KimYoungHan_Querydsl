@@ -270,3 +270,6 @@ queryFactory
 
 ### 학습 범위 : 5-6-1- - 5-6-5
 **➡️ Jparepository > SpringDataJpaRepository로 변경**
+- Pageable 적용
+
+- 

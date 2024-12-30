@@ -2,11 +2,14 @@ package study.querydsl.repository;
 
 import com.querydsl.core.QueryResults;
 import com.querydsl.core.types.dsl.BooleanExpression;
+import com.querydsl.jpa.impl.JPAQuery;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import jakarta.persistence.EntityManager;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.support.PageableExecutionUtils;
+import study.querydsl.entity.Member;
 import study.querydsl.entity.dto.MemberSearchCondition;
 import study.querydsl.entity.dto.MemberTeamDto;
 import study.querydsl.entity.dto.QMemberTeamDto;
@@ -97,7 +100,7 @@ public class MemberRepositoryImpl implements MemberRepositoryCustom {
                 .fetch();
 
         // count 쿼리에 대한 최적화 - 무조건 장점만 있는 방식은 아님, 조인이 필요 없는 경우도 있음
-        long total = queryFactory
+        JPAQuery<Member> countQuery = queryFactory
                 .select(member)
                 .from(member)
                 .leftJoin(member.team, team)
@@ -106,10 +109,12 @@ public class MemberRepositoryImpl implements MemberRepositoryCustom {
                         teamNameEq(condition.getTeamName()),
                         ageGoe(condition.getAgeGoe()),
                         ageLoe(condition.getAgeLoe())
-                )
-                .fetchCount();
+                );
 
-        return new PageImpl<>(content, pageable, total);
+        // count 쿼리가 생략 가능한 경우 생략해서 처리
+        return PageableExecutionUtils.getPage(content, pageable, () -> countQuery.fetchCount());
+
+//        return new PageImpl<>(content, pageable, total);
     }
 
     private BooleanExpression usernameEq(String username) {

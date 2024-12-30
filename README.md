@@ -272,4 +272,22 @@ queryFactory
 **➡️ Jparepository > SpringDataJpaRepository로 변경**
 - Pageable 적용
 
-- 
+- count 쿼리가 생략 가능한 경우 생력해서 처리
+  - 페이지 시작이면서 컨텐츠 사이즈가 페이지 사이즈보다 작을 때
+  - 마지막 페이지 일 때(offset + 컨텐츠 사이즈를 더해서 전체 사이즈 구함)
+  - `PageableExecutionUtils.getPage`
+<br>
+<br>
+
+### 학습 범위 : 5-7-1 - 5-7-4
+**➡️ 스프링 데이터 jpa가 제공하는 querydsl 기능**
+- QuerydslPredicateExecutor
+  - join이 되지 않아 한계점이 명확하며, 실무에서 쓰기 힘들다.
+  - 클라이언트 계층에서 querydsl에 의존해야함
+<br>
+
+- Querydsl web
+
+- QuerydslRepositorySupport
+
+- Querydsl 지원 클래스 직접 만들기
